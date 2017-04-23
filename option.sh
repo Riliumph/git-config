@@ -18,6 +18,13 @@
 	staged-diff = diff --cached
 [core]
 	quotepath = false
+[diff]
+	algorithm = patience
+	compactionHeuristic = true
+	indentHeuristic = true
+	tool = meld
+[difftool "meld"]
+	cmd = meld $LOCAL $REMOTE
 [pull]
 	ff = only
 [push]
