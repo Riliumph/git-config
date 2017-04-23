@@ -25,6 +25,11 @@
 	tool = meld
 [difftool "meld"]
 	cmd = meld $LOCAL $REMOTE
+[merge]
+	ff = false
+	tool = meld
+[mergetool "meld"]
+	cmd = meld $LOCAL $BASE --auto-merge
 [pull]
 	ff = only
 [push]
