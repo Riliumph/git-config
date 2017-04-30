@@ -30,6 +30,10 @@
 	tool = meld
 [mergetool "meld"]
 	cmd = meld $LOCAL $BASE --auto-merge
+[pager]
+	log = diff-highlight | less
+	show = diff-highlight | less
+	diff = diff-highlight | less
 [pull]
 	ff = only
 [push]
