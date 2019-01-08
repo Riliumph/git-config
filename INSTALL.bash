@@ -1,5 +1,4 @@
-#!/bin/bash -eu
-
+#!/bin/bash
 
 ###
 # Convert to absolute path
@@ -23,8 +22,12 @@ if ! type git &> /dev/null; then
   echo "Git is not installed"
 fi
 
-cp /usr/share/doc/git/contrib/diff-highlight/diff-highlight /usr/local/bin/
-chmod a+x /usr/local/bin/diff-highlight
+ln -sv /usr/local/share/git-core/contrib/diff-highlight/diff-highlight /usr/local/bin
+
+if [[ $? == 1 ]]; then
+  echo 'Cannot create a syambolic link'
+  exit $?
+fi
 
 echo '[include]' >> $HOME/.gitconfig
 echo '    path = '$(abs_dirname "$0")'/option.sh' >> $HOME/.gitconfig
