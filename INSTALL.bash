@@ -19,7 +19,7 @@ abs_dirname() {
 }
 
 
-if ! which git &> /dev/null; then
+if ! type git &> /dev/null; then
   echo "Git is not installed"
 fi
 
