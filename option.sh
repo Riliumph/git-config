@@ -36,6 +36,8 @@
 	log = diff-highlight | less
 	show = diff-highlight | less
 	diff = diff-highlight | less
+[fetch]
+	prune=true
 [pull]
 	ff = only
 [push]
