@@ -22,11 +22,20 @@ if ! type git &> /dev/null; then
   echo "Git is not installed"
 fi
 
-ln -sv /usr/local/share/git-core/contrib/diff-highlight/diff-highlight /usr/local/bin
+echo "Creating a path ..."
+search_key="diff-highlight"
+highlight=("$(find /usr -type f -name ${search_key} 2> /dev/null)")
+if [ -z ${highlight[0]} ];then
+  echo "Cannot find ${search_key}"
+  exit 1
+fi
 
-if [[ $? == 1 ]]; then
+ln -sv ${highlight[0]} /usr/local/bin
+ln_result=$?
+
+if [[ ${ln_result} == 1 ]]; then
   echo 'Cannot create a syambolic link'
-  exit $?
+  exit ${ln_result}
 fi
 
 echo '[include]' >> $HOME/.gitconfig
