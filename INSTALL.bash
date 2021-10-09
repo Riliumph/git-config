@@ -17,9 +17,10 @@ abs_dirname() {
   pwd -P  # return string
 }
 
-
+echo "Checking git ..."
 if ! type git &> /dev/null; then
   echo "Git is not installed"
+  exit 1
 fi
 
 echo "Creating a path ..."
@@ -38,5 +39,8 @@ if [[ ${ln_result} == 1 ]]; then
   exit ${ln_result}
 fi
 
+echo "Installing to gitconfig ..."
 echo '[include]' >> $HOME/.gitconfig
 echo '    path = '$(abs_dirname "$0")'/option.sh' >> $HOME/.gitconfig
+
+echo "DONE!!"
