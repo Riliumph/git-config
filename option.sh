@@ -19,6 +19,7 @@
 	staged-diff = diff --cached
 	purify = clean -df
 [core]
+	editor = vim
 	quotepath = false
 [diff]
 	algorithm = patience
