@@ -52,5 +52,5 @@ fi
 echo "Setting bash ..."
 echo 'export PATH="$HOME/bin:${PATH}"' >> "$HOME/.bashrc"
 echo '[include]
-    path = '$(abs_dirname "$0")'/option.sh' >> "$HOME/.gitconfig"
+    path = '$(abs_dirname "$0")'/option.conf' >> "$HOME/.gitconfig"
 echo "DONE!!"
