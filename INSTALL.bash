@@ -33,24 +33,27 @@ echo "Setting diff-highlight ..."
 if ! type diff-highlight &> /dev/null; then
   echo "  Searching diff-highlight ..."
   search_key="diff-highlight"
-  highlight=("$(find /usr -type f -name ${search_key} 2> /dev/null)")
+  mapfile highlight < <(find /usr/share -type f -name "${search_key}")
   if [ -z "${highlight[0]}" ]; then
     echo "  Cannot find ${search_key}"
     exit 1
   fi
 
   echo "  Linking diff-highliht ..."
-  mkdir -p "$HOME/bin"
-  ln -sv "${highlight[0]}" "${user_bin}"
-  ln_result=$?
-  if [[ ${ln_result} == 1 ]]; then
+  mkdir -p "${user_bin}"
+  if ! ln -sfv "${highlight[0]}" "${user_bin}"; then
     echo 'Cannot create a syambolic link'
-    exit ${ln_result}
+    exit 1
   fi
 fi
 
 echo "Setting bash ..."
 echo 'export PATH="$HOME/bin:${PATH}"' >> "$HOME/.bashrc"
-echo '[include]
-    path = '$(abs_dirname "$0")'/option.conf' >> "$HOME/.gitconfig"
+echo "Install git config"
+if [ -z "${XDG_CONFIG_HOME}" ]; then
+  mkdir -p "${HOME}/.config/git"
+  ln -sfv "$(abs_dirname "$0")/option.conf" "$HOME/.config/git/config"
+else
+  ln -sfv "$(abs_dirname "$0")/option.conf" "$XDG_CONFIG_HOME/.config/git/config"
+fi
 echo "DONE!!"
