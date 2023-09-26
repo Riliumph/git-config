@@ -35,8 +35,12 @@ if ! type diff-highlight &> /dev/null; then
   search_key="diff-highlight"
   mapfile highlight < <(find /usr/share -type f -name "${search_key}")
   if [ -z "${highlight[0]}" ]; then
-    echo "  Cannot find ${search_key}"
-    exit 1
+    mapfile highlight < <(find /usr/share -type d -name "${search_key}")
+    if [ -z "${highlight[0]}" ]; then
+      cd "${highlight[0]}" || exit 1
+      make || exit 1
+      highlight[0]="${highlight}/diff-highlight"
+    fi
   fi
 
   echo "  Linking diff-highliht ..."
@@ -51,9 +55,8 @@ echo "Setting bash ..."
 echo 'export PATH="$HOME/bin:${PATH}"' >> "$HOME/.bashrc"
 echo "Install git config"
 if [ -z "${XDG_CONFIG_HOME}" ]; then
-  mkdir -p "${HOME}/.config/git"
-  ln -sfv "$(abs_dirname "$0")/option.conf" "$HOME/.config/git/config"
-else
-  ln -sfv "$(abs_dirname "$0")/option.conf" "$XDG_CONFIG_HOME/.config/git/config"
+  export XDG_CONFIG_HOME="${HOME}/.config"
 fi
+mkdir -p "${XDG_CONFIG_HOME}/git"
+ln -sfv "$(abs_dirname "$0")/option.conf" "$XDG_CONFIG_HOME/git/config"
 echo "DONE!!"
