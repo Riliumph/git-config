@@ -41,7 +41,7 @@ _InstallGitHelper() {
   for dir in "${GIT_FILE_LOCATION[@]}"; do
     [[ -d "$dir" ]] || continue
 
-    found=$(find "$dir" -type f -name 'hoge' -print -quit 2>/dev/null)
+    found=$(find "$dir" -type f -name "$target" -print -quit 2>/dev/null)
     [[ -n "$found" ]] && break
   done
 
