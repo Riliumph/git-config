@@ -24,8 +24,6 @@ abs_dirname() {
   echo "$path"
 }
 
-source git-helper.bash
-
 ################################################################################
 # Config
 ################################################################################
@@ -40,6 +38,8 @@ XDG_CONFIG_GIT="$XDG_CONFIG_HOME/git"
 info "setup git helpers"
 # requirement
 [[ "${BASH_SOURCE[0]}" == "$0" ]] || die "This script must be executed, not sourced"
+
+source "$(abs_dirname $0)/git-helper.bash"
 
 info "Checking git ..."
 command_exists git || die "git is not installed"
