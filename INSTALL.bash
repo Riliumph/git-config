@@ -24,12 +24,15 @@ abs_dirname() {
   echo "$path"
 }
 
+source git-helper.bash
+
 ################################################################################
 # Config
 ################################################################################
 
 USER_BIN="$HOME/.local/bin"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_CONFIG_GIT="$XDG_CONFIG_HOME/git"
 
 ################################################################################
 # Main
@@ -42,26 +45,37 @@ info "Checking git ..."
 command_exists git || die "git is not installed"
 
 ################################################################################
-# diff-highlight
+# Git Tools
 ################################################################################
 
+# diff-highlight
 info "Setting diff-highlight ..."
+if _HasGitDiffHighlight; then
+  info "  diff-highlight is already installed"
+else
+  info "  install diff-highlight..."
+  _InstallGitHelper "diff-highlight" "$USER_BIN" ""
+  _EnableGitDiffHighlight "$USER_BIN"
+fi
 
-if ! command_exists diff-highlight; then
-  info "  Searching diff-highlight ..."
+# Git-Prompt
+info "Setting git-prompt ..."
+if _HasGitPrompt; then
+  info "  git-prompt.sh is already installed"
+else
+  info "  install git-prompt.sh..."
+  _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _EnableGitPrompt
+fi
 
-  diff_highlight_path="$(
-    find /usr/share -type f -name diff-highlight 2>/dev/null | head -n 1
-  )"
-
-  if [[ -z "$diff_highlight_path" ]]; then
-    die "diff-highlight not found under /usr/share"
-  fi
-
-  info "  Linking diff-highlight ..."
-  mkdir -p "$USER_BIN"
-  cp -f "$diff_highlight_path" "$USER_BIN/diff-highlight"
-  chmod +x "$USER_BIN/diff-highlight"
+# Git-Completion
+info "Setting git-completion ..."
+if _HasGitCompletion; then
+  info "  git-completion.bash is already installed"
+else
+  info "  install git-completion.bash ..."
+  _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _EnableGitCompletion
 fi
 
 ################################################################################
