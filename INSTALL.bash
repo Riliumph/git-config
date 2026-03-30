@@ -33,8 +33,9 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 ################################################################################
 # Main
 ################################################################################
+info "setup git helpers"
 # requirement
-[[ "${BASH_SOURCE[0]}" != "$0" ]] || die "This script must be executed, not sourced"
+[[ "${BASH_SOURCE[0]}" == "$0" ]] || die "This script must be executed, not sourced"
 
 info "Checking git ..."
 command_exists git || die "git is not installed"
