@@ -1,12 +1,16 @@
 #!/bin/bash
 set -euo pipefail
+# set -x
 
 ################################################################################
 # Utils
 ################################################################################
+info() {
+  echo "INFO: $*"
+}
 
 die() {
-  echo "Error: $*" >&2
+  echo "ERROR: $*" >&2
   exit 1
 }
 
@@ -26,42 +30,59 @@ abs_dirname() {
 
 USER_BIN="$HOME/.local/bin"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_CONFIG_GIT="$XDG_CONFIG_HOME/git"
 
 ################################################################################
 # Main
 ################################################################################
+info "setup git helpers"
+# requirement
+[[ "${BASH_SOURCE[0]}" == "$0" ]] || die "This script must be executed, not sourced"
 
-echo "Checking git ..."
+source "$(abs_dirname $0)/git-helper.bash"
+
+info "Checking git ..."
 command_exists git || die "git is not installed"
 
 ################################################################################
-# diff-highlight
+# Git Tools
 ################################################################################
 
-echo "Setting diff-highlight ..."
+# diff-highlight
+info "Setting diff-highlight ..."
+if _HasGitDiffHighlight; then
+  info "  diff-highlight is already installed"
+else
+  info "  install diff-highlight..."
+  _InstallGitHelper "diff-highlight" "$USER_BIN" ""
+  _EnableGitDiffHighlight "$USER_BIN"
+fi
 
-if ! command_exists diff-highlight; then
-  echo "  Searching diff-highlight ..."
+# Git-Prompt
+info "Setting git-prompt ..."
+if _HasGitPrompt; then
+  info "  git-prompt.sh is already installed"
+else
+  info "  install git-prompt.sh..."
+  _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _EnableGitPrompt
+fi
 
-  diff_highlight_path="$(
-    find /usr/share -type f -name diff-highlight 2>/dev/null | head -n 1
-  )"
-
-  if [[ -z "$diff_highlight_path" ]]; then
-    die "diff-highlight not found under /usr/share"
-  fi
-
-  echo "  Linking diff-highlight ..."
-  mkdir -p "$USER_BIN"
-  cp -f "$diff_highlight_path" "$USER_BIN/diff-highlight"
-  chmod +x "$USER_BIN/diff-highlight"
+# Git-Completion
+info "Setting git-completion ..."
+if _HasGitCompletion; then
+  info "  git-completion.bash is already installed"
+else
+  info "  install git-completion.bash ..."
+  _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _EnableGitCompletion
 fi
 
 ################################################################################
 # Bash setup
 ################################################################################
 
-echo "Setting bash ..."
+info "Setting bash ..."
 
 LOCAL_BIN="$HOME/.local/bin"
 BASHRC="$HOME/.bashrc"
@@ -69,10 +90,10 @@ BASHRC="$HOME/.bashrc"
 # 実行時 PATH に ~/.local/bin が含まれていない場合のみ設定を書く
 case ":$PATH:" in
   *":$LOCAL_BIN:"*)
-    echo "  $LOCAL_BIN is already in PATH"
+    info "  $LOCAL_BIN is already in PATH"
     ;;
   *)
-    echo "  Adding $LOCAL_BIN to PATH in $BASHRC"
+    info "  Adding $LOCAL_BIN to PATH in $BASHRC"
     cat >>"$BASHRC" <<'EOF'
 
 # Add ~/.local/bin to PATH if not already present
@@ -89,26 +110,29 @@ esac
 # Git config setup
 ################################################################################
 
-echo "Install git config ..."
-mkdir -p "$XDG_CONFIG_HOME/git"
+info "Setting git ..."
 
 SCRIPT_DIR="$(abs_dirname "$0")"
-ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_HOME/git/config"
 
-echo "Setting up git include config ..."
+# ---- install ----
+info "Install git config ..."
+XDG_CONFIG_GITHOME="$XDG_CONFIG_HOME/git"
+XDG_CONFIG_GIT="$XDG_CONFIG_GITHOME/config"
+mkdir -p "$XDG_CONFIG_GITHOME"
+ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_GIT"
+
+# ---- gitconfig setup ----
+info "Setting up git include config ..."
 
 GITCONFIG="$HOME/.gitconfig"
-XDG_GITCONFIG="$XDG_CONFIG_HOME/git/config"
-
-# ~/.gitconfig がなければ作る
 touch "$GITCONFIG"
 
 # include がすでにあるか確認
-if ! git config --global --get-all include.path | grep -Fxq "$XDG_GITCONFIG"; then
-  echo "  Adding include to ~/.gitconfig"
-  git config --global --add include.path "$XDG_GITCONFIG"
+if ! git config --global --get-all include.path | grep -Fxq "$XDG_CONFIG_GIT"; then
+  info "  Adding include to ~/.gitconfig"
+  git config --global --add include.path "$XDG_CONFIG_GIT"
 else
-  echo "  include section already exists in ~/.gitconfig"
+  info "  include section already exists in ~/.gitconfig"
 fi
 
-echo "DONE!!"
+info "DONE!!"
