@@ -9,7 +9,7 @@ info() {
 }
 
 die() {
-  echo "Error: $*" >&2
+  echo "ERROR: $*" >&2
   exit 1
 }
 
