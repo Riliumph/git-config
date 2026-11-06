@@ -5,20 +5,24 @@ set -euo pipefail
 ################################################################################
 # Utils
 ################################################################################
-info() {
+info()
+{
   echo "INFO: $*"
 }
 
-die() {
+die()
+{
   echo "ERROR: $*" >&2
   exit 1
 }
 
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
+command_exists()
+{
+  command -v "$1" > /dev/null 2>&1
 }
 
-abs_dirname() {
+abs_dirname()
+{
   local path
   path="$(cd "$(dirname "$1")" && pwd -P)"
   echo "$path"
@@ -94,7 +98,7 @@ case ":$PATH:" in
     ;;
   *)
     info "  Adding $LOCAL_BIN to PATH in $BASHRC"
-    cat >>"$BASHRC" <<'EOF'
+    cat >> "$BASHRC" << 'EOF'
 
 # Add ~/.local/bin to PATH if not already present
 case ":$PATH:" in
@@ -104,7 +108,6 @@ esac
 EOF
     ;;
 esac
-
 
 ################################################################################
 # Git config setup
