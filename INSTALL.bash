@@ -65,7 +65,7 @@ fi
 # Git-Prompt
 GIT_PROMPT_URL="https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh"
 info "Setting git-prompt ..."
-if _HasGitPrompt; then
+if _FindGitPrompt; then
   info "  git-prompt.sh is already installed"
 else
   info "  install git-prompt.sh..."

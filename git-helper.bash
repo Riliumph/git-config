@@ -1,29 +1,30 @@
 ################################################################################
 # GLOBAL CONFIG
 ################################################################################
-GIT_FILE_LOCATION=(
-  # 共通
-  "/usr/share"
-  "/usr/local/share"
-  # Git の contrib
-  "/usr/share/git-core"
-  "/usr/share/git-core/contrib/completion"
-  # bash-completion の標準配置
-  "/etc/bash_completion.d"
-  "/usr/share/bash-completion"
-  "/usr/share/bash-completion/completions"
-  # Homebrew (Intel / Apple Silicon)
-  "/usr/local/opt"
-  "/usr/local/share/git-core/contrib/completion"
-  "/opt/homebrew/opt"
-  "/opt/homebrew/share/git-core/contrib/completion"
-  "/opt/homebrew/etc/bash_completion.d"
+
+# `$ grep -R "git-sh-prompt" /etc/profile /etc/bash.bashrc /etc/profile.d /etc/bash_completion.d 2>/dev/null``
+_GIT_PROMPT_CANDIDATES=(
+  ## Linux
+  # load in /etc/bash_completion.d/git-prompt
+  "/usr/lib/git-core/git-sh-prompt"
+  "/usr/share/git/completion/git-prompt.sh"
+  ## macOS
+  # Homebrew(intel)
+  "/usr/local/share/git-core/contrib/completion/git-prompt.sh"
+  "/usr/local/etc/bash_completion.d/git-prompt.sh"
+  "/usr/local/opt/git/etc/bash_completion.d/git-prompt.sh"
+  # Homebrew(AppleSilicon)
+  "/opt/homebrew/share/git-core/contrib/completion/git-prompt.sh"
+  "/opt/homebrew/etc/bash_completion.d/git-prompt.sh"
+  "/opt/homebrew/opt/git/etc/bash_completion.d/git-prompt.sh"
   # MacPorts
-  "/opt/local/share/git-core/contrib/completion"
-  "/opt/local/etc/bash_completion.d"
-  # Xcode / CLT（インストールしている場合）
-  "/Applications/Xcode.app/Contents/Developer/usr/share/git-core"
-  "/Library/Developer/CommandLineTools/usr/share/git-core"
+  "/opt/local/share/git-core/contrib/completion/git-prompt.sh"
+  "/opt/local/etc/bash_completion.d/git-prompt.sh"
+  # XCode
+  "/Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh"
+  "/Applications/Xcode.app/Contents/Developer/usr/share/git-core/contrib/completion/git-prompt.sh"
+  "/Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh"
+  "/Library/Developer/CommandLineTools/usr/share/git-core/contrib/completion/git-prompt.sh"
 )
 
 ################################################################################
@@ -61,14 +62,22 @@ _InstallGitHelper()
   fi
 }
 
+################################################################################
 # Git Prompt
+################################################################################
 
-_HasGitPrompt()
+_FindGitPrompt()
 {
-  # 注意：シェル関数__git_ps1はinstall.shの世界では読み込まれない。
-  # 一時的に対話シェルを立ち上げて確認する。
-  # git-prompt.shはcompletion.dやprofile.dで読み込まれるためログインシェルでは不十分
-  bash -l -i -c 'type __git_ps1 >/dev/null 2>&1'
+  local path
+
+  for path in "${_GIT_PROMPT_CANDIDATES[@]}"; do
+    [[ -r "$path" ]] && {
+      printf '%s\n' "$path"
+      return 0
+    }
+  done
+
+  return 1
 }
 
 _EnableGitPrompt()
