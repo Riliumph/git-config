@@ -27,13 +27,20 @@ GIT_FILE_LOCATION=(
 )
 
 ################################################################################
-# Utils
+# Common
 ################################################################################
+AppendIfNotExists()
+{
+  local line="$1"
+  local file="$2"
+  grep -Fxq "$line" "$file" 2> /dev/null || echo "$line" >> "$file"
+}
 
-_InstallGitHelper() {
-  local target="$1"      # 探すファイル名
-  local dest="$2"        # コピー先ファイルパス
-  local curl_base="$3"   # 見つからない場合のcurlパス
+_InstallGitHelper()
+{
+  local target="$1"    # 探すファイル名
+  local dest="$2"      # コピー先ファイルパス
+  local curl_base="$3" # 見つからない場合のcurlパス
 
   mkdir -p "$dest"
   local found
@@ -41,10 +48,9 @@ _InstallGitHelper() {
   for dir in "${GIT_FILE_LOCATION[@]}"; do
     [[ -d "$dir" ]] || continue
 
-    found=$(find "$dir" -type f -name "$target" -print -quit 2>/dev/null)
+    found=$(find "$dir" -type f -name "$target" -print -quit 2> /dev/null)
     [[ -n "$found" ]] && break
   done
-
 
   if [[ -n "$found" ]]; then
     echo "copy: $found -> $dest/$target"
@@ -95,7 +101,9 @@ _EnableGitCompletion()
   fi
 }
 
-# Git Diff Highlight
+################################################################################
+# Git diff-highlight
+################################################################################
 
 # 0 (true) ならすでに定義済み
 _HasGitDiffHighlight()
@@ -107,10 +115,4 @@ _HasGitDiffHighlight()
 _EnableGitDiffHighlight()
 {
   chmod +x "$1/diff-highlight"
-}
-
-AppendIfNotExists() {
-  local line="$1"
-  local file="$2"
-  grep -Fxq "$line" "$file" 2>/dev/null || echo "$line" >> "$file"
 }
