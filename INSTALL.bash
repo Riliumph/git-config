@@ -5,20 +5,24 @@ set -euo pipefail
 ################################################################################
 # Utils
 ################################################################################
-info() {
+info()
+{
   echo "INFO: $*"
 }
 
-die() {
+die()
+{
   echo "ERROR: $*" >&2
   exit 1
 }
 
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
+command_exists()
+{
+  command -v "$1" > /dev/null 2>&1
 }
 
-abs_dirname() {
+abs_dirname()
+{
   local path
   path="$(cd "$(dirname "$1")" && pwd -P)"
   echo "$path"
@@ -59,22 +63,24 @@ else
 fi
 
 # Git-Prompt
+GIT_PROMPT_URL="https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh"
 info "Setting git-prompt ..."
-if _HasGitPrompt; then
-  info "  git-prompt.sh is already installed"
+if path=$(_FindGitPrompt); then
+  info "  git-prompt.sh is already installed: $path"
 else
   info "  install git-prompt.sh..."
-  _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "$GIT_PROMPT_URL"
   _EnableGitPrompt
 fi
 
 # Git-Completion
+GIT_COMPLETION_URL="https://github.com/git/git/blob/master/contrib/completion/git-completion.bash"
 info "Setting git-completion ..."
-if _HasGitCompletion; then
-  info "  git-completion.bash is already installed"
+if path=$(_FindGitCompletion); then
+  info "  git-completion.bash is already installed: $path"
 else
   info "  install git-completion.bash ..."
-  _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "https://raw.githubusercontent.com/git/git/master/contrib/completion"
+  _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "$GIT_COMPLETION_URL"
   _EnableGitCompletion
 fi
 
@@ -94,7 +100,7 @@ case ":$PATH:" in
     ;;
   *)
     info "  Adding $LOCAL_BIN to PATH in $BASHRC"
-    cat >>"$BASHRC" <<'EOF'
+    cat >> "$BASHRC" << 'EOF'
 
 # Add ~/.local/bin to PATH if not already present
 case ":$PATH:" in
@@ -104,7 +110,6 @@ esac
 EOF
     ;;
 esac
-
 
 ################################################################################
 # Git config setup
@@ -120,19 +125,5 @@ XDG_CONFIG_GITHOME="$XDG_CONFIG_HOME/git"
 XDG_CONFIG_GIT="$XDG_CONFIG_GITHOME/config"
 mkdir -p "$XDG_CONFIG_GITHOME"
 ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_GIT"
-
-# ---- gitconfig setup ----
-info "Setting up git include config ..."
-
-GITCONFIG="$HOME/.gitconfig"
-touch "$GITCONFIG"
-
-# include がすでにあるか確認
-if ! git config --global --get-all include.path | grep -Fxq "$XDG_CONFIG_GIT"; then
-  info "  Adding include to ~/.gitconfig"
-  git config --global --add include.path "$XDG_CONFIG_GIT"
-else
-  info "  include section already exists in ~/.gitconfig"
-fi
 
 info "DONE!!"
