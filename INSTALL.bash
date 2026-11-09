@@ -76,7 +76,7 @@ fi
 # Git-Completion
 GIT_COMPLETION_URL="https://github.com/git/git/blob/master/contrib/completion/git-completion.bash"
 info "Setting git-completion ..."
-if _HasGitCompletion; then
+if _FindGitCompletion; then
   info "  git-completion.bash is already installed"
 else
   info "  install git-completion.bash ..."

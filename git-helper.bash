@@ -27,6 +27,15 @@ _GIT_PROMPT_CANDIDATES=(
   "/Library/Developer/CommandLineTools/usr/share/git-core/contrib/completion/git-prompt.sh"
 )
 
+# `$ grep -R "bash_completion" /etc/profile /etc/bash.bashrc /etc/profile.d /etc/bash_completion.d 2>/dev/null`
+_GIT_COMPLETION_CANDIDATES=(
+  ## Linux
+  # load in /etc/bash.bashrc
+  "/usr/share/bash-completion/completions/git"
+  "/usr/share/git/completion/git-completion.bash"
+  ## macOS
+)
+
 ################################################################################
 # Common
 ################################################################################
@@ -91,12 +100,22 @@ _EnableGitPrompt()
   fi
 }
 
+################################################################################
 # Git Completion
+################################################################################
 
-# 0 (true) ならすでに定義済み
-_HasGitCompletion()
+_FindGitCompletion()
 {
-  bash -l -i -c 'complete -p git > /dev/null 2>&1'
+  local path
+
+  for path in "${_GIT_COMPLETION_CANDIDATES[@]}"; do
+    [[ -r "$path" ]] && {
+      printf '%s\n' "$path"
+      return 0
+    }
+  done
+
+  return 1
 }
 
 _EnableGitCompletion()
