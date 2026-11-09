@@ -65,8 +65,8 @@ fi
 # Git-Prompt
 GIT_PROMPT_URL="https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh"
 info "Setting git-prompt ..."
-if _FindGitPrompt; then
-  info "  git-prompt.sh is already installed"
+if path=$(_FindGitPrompt); then
+  info "  git-prompt.sh is already installed: $path"
 else
   info "  install git-prompt.sh..."
   _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "$GIT_PROMPT_URL"
@@ -76,8 +76,8 @@ fi
 # Git-Completion
 GIT_COMPLETION_URL="https://github.com/git/git/blob/master/contrib/completion/git-completion.bash"
 info "Setting git-completion ..."
-if _FindGitCompletion; then
-  info "  git-completion.bash is already installed"
+if path=$(_FindGitCompletion); then
+  info "  git-completion.bash is already installed: $path"
 else
   info "  install git-completion.bash ..."
   _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "$GIT_COMPLETION_URL"

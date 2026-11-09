@@ -78,7 +78,6 @@ _InstallGitHelper()
 _FindGitPrompt()
 {
   local path
-
   for path in "${_GIT_PROMPT_CANDIDATES[@]}"; do
     [[ -r "$path" ]] && {
       printf '%s\n' "$path"
