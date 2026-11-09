@@ -126,18 +126,4 @@ XDG_CONFIG_GIT="$XDG_CONFIG_GITHOME/config"
 mkdir -p "$XDG_CONFIG_GITHOME"
 ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_GIT"
 
-# ---- gitconfig setup ----
-info "Setting up git include config ..."
-
-GITCONFIG="$HOME/.gitconfig"
-touch "$GITCONFIG"
-
-# include がすでにあるか確認
-if ! git config --global --get-all include.path | grep -Fxq "$XDG_CONFIG_GIT"; then
-  info "  Adding include to ~/.gitconfig"
-  git config --global --add include.path "$XDG_CONFIG_GIT"
-else
-  info "  include section already exists in ~/.gitconfig"
-fi
-
 info "DONE!!"
