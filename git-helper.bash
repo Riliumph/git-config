@@ -65,28 +65,22 @@ _FindFile()
   return 1
 }
 
-_InstallGitHelper()
+_EnsureFile()
 {
-  local target="$1"    # 探すファイル名
-  local dest="$2"      # コピー先ファイルパス
-  local curl_base="$3" # 見つからない場合のcurlパス
+  local find_func="$1"
+  local dest="$2"
+  local url="$3"
 
-  mkdir -p "$dest"
-  local found
-  # find DIR DIR ... CONDの手法だとARG_MAXを超えるからか失敗するケースが有る
-  for dir in "${GIT_FILE_LOCATION[@]}"; do
-    [[ -d "$dir" ]] || continue
+  local path
 
-    found=$(find "$dir" -type f -name "$target" -print -quit 2> /dev/null)
-    [[ -n "$found" ]] && break
-  done
+  mkdir -p "$(dirname "$dest")"
 
-  if [[ -n "$found" ]]; then
-    echo "copy: $found -> $dest/$target"
-    cp -f "$found" "$dest/$target"
+  if path=$("$find_func"); then
+    info "  found: $path"
+    cp -f "$path" "$dest"
   else
-    echo "download: $target"
-    curl -fsSL -o "$dest/$target" "$curl_base/$target"
+    info "  download: $(basename "$dest")"
+    curl -fsSL -o "$dest" "$url"
   fi
 }
 
