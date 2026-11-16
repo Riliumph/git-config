@@ -96,15 +96,7 @@ _InstallGitHelper()
 
 _FindGitPrompt()
 {
-  local path
-  for path in "${_GIT_PROMPT_CANDIDATES[@]}"; do
-    [[ -r "$path" ]] && {
-      printf '%s\n' "$path"
-      return 0
-    }
-  done
-
-  return 1
+  _FindFile _GIT_PROMPT_CANDIDATES
 }
 
 _EnableGitPrompt()
@@ -124,16 +116,7 @@ _EnableGitPrompt()
 
 _FindGitCompletion()
 {
-  local path
-
-  for path in "${_GIT_COMPLETION_CANDIDATES[@]}"; do
-    [[ -r "$path" ]] && {
-      printf '%s\n' "$path"
-      return 0
-    }
-  done
-
-  return 1
+  _FindFile _GIT_COMPLETION_CANDIDATES
 }
 
 _EnableGitCompletion()
@@ -150,6 +133,11 @@ _EnableGitCompletion()
 ################################################################################
 # Git diff-highlight
 ################################################################################
+
+_FindGitDiffHighlight()
+{
+  _FindFile _GIT_DIFF_HIGHLIGHTS
+}
 
 # 0 (true) ならすでに定義済み
 _HasGitDiffHighlight()
