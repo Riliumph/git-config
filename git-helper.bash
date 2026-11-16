@@ -50,6 +50,21 @@ AppendIfNotExists()
   grep -Fxq "$line" "$file" 2> /dev/null || echo "$line" >> "$file"
 }
 
+_FindFile()
+{
+  local -n candidates="$1"
+
+  local path
+  for path in "${candidates[@]}"; do
+    [[ -r "$path" ]] || continue
+
+    printf '%s\n' "$path"
+    return 0
+  done
+
+  return 1
+}
+
 _InstallGitHelper()
 {
   local target="$1"    # 探すファイル名
