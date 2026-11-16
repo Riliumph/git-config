@@ -1,9 +1,19 @@
 ################################################################################
-# GLOBAL CONFIG
+# URLs
 ################################################################################
 
-# `$ grep -R "git-sh-prompt" /etc/profile /etc/bash.bashrc /etc/profile.d /etc/bash_completion.d 2>/dev/null``
-_GIT_PROMPT_CANDIDATES=(
+GIT_PROMPT_URL="https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh"
+
+GIT_COMPLETION_URL="https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash"
+
+DIFF_HIGHLIGHT_URL="https://raw.githubusercontent.com/git/git/master/contrib/diff-highlight/diff-highlight"
+
+################################################################################
+# Candidate Paths
+################################################################################
+
+# `$ grep -R "git-sh-prompt" /etc/profile /etc/bash.bashrc /etc/profile.d /etc/bash_completion.d 2>/dev/null`
+GIT_PROMPT_CANDIDATES=(
   ## Linux
   # load in /etc/bash_completion.d/git-prompt
   "/usr/lib/git-core/git-sh-prompt"
@@ -28,7 +38,7 @@ _GIT_PROMPT_CANDIDATES=(
 )
 
 # `$ grep -R "bash_completion" /etc/profile /etc/bash.bashrc /etc/profile.d /etc/bash_completion.d 2>/dev/null`
-_GIT_COMPLETION_CANDIDATES=(
+GIT_COMPLETION_CANDIDATES=(
   ## Linux
   # load in /etc/bash.bashrc
   "/usr/share/bash-completion/completions/git"
@@ -36,111 +46,41 @@ _GIT_COMPLETION_CANDIDATES=(
   ## macOS
 )
 
-_GIT_DIFF_HIGHLIGHTS=(
+DIFF_HIGHLIGHT_CANDIDATES=(
   "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"
 )
 
 ################################################################################
-# Common
+# Functions
 ################################################################################
+
 AppendIfNotExists()
 {
   local line="$1"
   local file="$2"
-  grep -Fxq "$line" "$file" 2> /dev/null || echo "$line" >> "$file"
+
+  grep -Fxq "$line" "$file" 2> /dev/null \
+    || echo "$line" >> "$file"
 }
 
-_FindFile()
+InstallGitHelper()
 {
-  local -n candidates="$1"
+  local dest="$1"
+  local url="$2"
 
-  local path
-  for path in "${candidates[@]}"; do
-    [[ -r "$path" ]] || continue
+  shift 2
 
-    printf '%s\n' "$path"
+  local src
+
+  for src in "$@"; do
+    [[ -r "$src" ]] || continue
+
+    info "copy $src -> $dest"
+    cp -f "$src" "$dest"
+
     return 0
   done
 
-  return 1
-}
-
-_EnsureFile()
-{
-  local find_func="$1"
-  local dest="$2"
-  local url="$3"
-
-  local path
-
-  mkdir -p "$(dirname "$dest")"
-
-  if path=$("$find_func"); then
-    info "  found: $path"
-    cp -f "$path" "$dest"
-  else
-    info "  download: $(basename "$dest")"
-    curl -fsSL -o "$dest" "$url"
-  fi
-}
-
-################################################################################
-# Git Prompt
-################################################################################
-
-_FindGitPrompt()
-{
-  _FindFile _GIT_PROMPT_CANDIDATES
-}
-
-_EnableGitPrompt()
-{
-  local gp="${XDG_CONFIG_GIT}/git-prompt.sh"
-
-  if [[ -r "$gp" ]]; then
-    AppendIfNotExists "source \"$gp\"" "$HOME/.bashrc"
-  else
-    echo "git-prompt.sh not found: $gp"
-  fi
-}
-
-################################################################################
-# Git Completion
-################################################################################
-
-_FindGitCompletion()
-{
-  _FindFile _GIT_COMPLETION_CANDIDATES
-}
-
-_EnableGitCompletion()
-{
-  local gc="${XDG_CONFIG_GIT}/git-completion.bash"
-
-  if [[ -r "$gc" ]]; then
-    AppendIfNotExists "source \"$gc\"" "$HOME/.bashrc"
-  else
-    echo "git-completion.bash not found: $gc"
-  fi
-}
-
-################################################################################
-# Git diff-highlight
-################################################################################
-
-_FindGitDiffHighlight()
-{
-  _FindFile _GIT_DIFF_HIGHLIGHTS
-}
-
-# 0 (true) ならすでに定義済み
-_HasGitDiffHighlight()
-{
-  # commandを探す場合、commandコマンドで十分
-  command -v diff-highlight &> /dev/null
-}
-
-_EnableGitDiffHighlight()
-{
-  chmod +x "$1/diff-highlight"
+  info "download $(basename "$dest")"
+  curl -fsSL "$url" -o "$dest"
 }

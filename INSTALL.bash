@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
-# set -x
 
 ################################################################################
 # Utils
 ################################################################################
+
 info()
 {
   echo "INFO: $*"
@@ -16,100 +16,70 @@ die()
   exit 1
 }
 
-command_exists()
-{
-  command -v "$1" > /dev/null 2>&1
-}
-
 abs_dirname()
 {
-  local path
-  path="$(cd "$(dirname "$1")" && pwd -P)"
-  echo "$path"
+  (
+    cd "$(dirname "$1")"
+    pwd -P
+  )
 }
 
 ################################################################################
 # Config
 ################################################################################
 
-USER_BIN="$HOME/.local/bin"
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CONFIG_GIT="$XDG_CONFIG_HOME/git"
+mkdir -p "$XDG_CONFIG_GIT"
 
 ################################################################################
 # Main
 ################################################################################
-info "setup git helpers"
-# requirement
-[[ "${BASH_SOURCE[0]}" == "$0" ]] || die "This script must be executed, not sourced"
 
-source "$(abs_dirname $0)/git-helper.bash"
+[[ "${BASH_SOURCE[0]}" == "$0" ]] \
+  || die "This script must be executed, not sourced"
 
-info "Checking git ..."
-command_exists git || die "git is not installed"
+source "$(abs_dirname "$0")/git-helper.bash"
+
+mkdir -p "$XDG_CONFIG_GIT"
 
 ################################################################################
-# Git Tools
+# git-prompt
 ################################################################################
 
+info "install git-prompt"
+
+destination="$XDG_CONFIG_GIT/git-prompt.sh"
+InstallGitHelper \
+  "$destination" \
+  "$GIT_PROMPT_URL" \
+  "${GIT_PROMPT_CANDIDATES[@]}"
+
+################################################################################
+# git-completion
+################################################################################
+
+info "install git-completion"
+
+destination="$XDG_CONFIG_GIT/git-completion.bash"
+InstallGitHelper \
+  "$destination" \
+  "$GIT_COMPLETION_URL" \
+  "${GIT_COMPLETION_CANDIDATES[@]}"
+
+################################################################################
 # diff-highlight
-info "Setting diff-highlight ..."
-if _HasGitDiffHighlight; then
-  info "  diff-highlight is already installed"
-else
-  info "  install diff-highlight..."
-  _InstallGitHelper "diff-highlight" "$USER_BIN" ""
-  _EnableGitDiffHighlight "$USER_BIN"
-fi
-
-# Git-Prompt
-GIT_PROMPT_URL="https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh"
-info "Setting git-prompt ..."
-if path=$(_FindGitPrompt); then
-  info "  git-prompt.sh is already installed: $path"
-else
-  info "  install git-prompt.sh..."
-  _InstallGitHelper "git-prompt.sh" "$XDG_CONFIG_GIT" "$GIT_PROMPT_URL"
-  _EnableGitPrompt
-fi
-
-# Git-Completion
-GIT_COMPLETION_URL="https://github.com/git/git/blob/master/contrib/completion/git-completion.bash"
-info "Setting git-completion ..."
-if path=$(_FindGitCompletion); then
-  info "  git-completion.bash is already installed: $path"
-else
-  info "  install git-completion.bash ..."
-  _InstallGitHelper "git-completion.bash" "$XDG_CONFIG_GIT" "$GIT_COMPLETION_URL"
-  _EnableGitCompletion
-fi
-
-################################################################################
-# Bash setup
 ################################################################################
 
-info "Setting bash ..."
+info "install diff-highlight"
 
-LOCAL_BIN="$HOME/.local/bin"
-BASHRC="$HOME/.bashrc"
+destination="$XDG_CONFIG_GIT/diff-highlight"
+InstallGitHelper \
+  "$destination" \
+  "$DIFF_HIGHLIGHT_URL" \
+  "${DIFF_HIGHLIGHT_CANDIDATES[@]}"
 
-# 実行時 PATH に ~/.local/bin が含まれていない場合のみ設定を書く
-case ":$PATH:" in
-  *":$LOCAL_BIN:"*)
-    info "  $LOCAL_BIN is already in PATH"
-    ;;
-  *)
-    info "  Adding $LOCAL_BIN to PATH in $BASHRC"
-    cat >> "$BASHRC" << 'EOF'
-
-# Add ~/.local/bin to PATH if not already present
-case ":$PATH:" in
-  *":$HOME/.local/bin:"*) ;;
-  *) export PATH="$HOME/.local/bin:$PATH" ;;
-esac
-EOF
-    ;;
-esac
+chmod +x "$destination"
 
 ################################################################################
 # Git config setup
@@ -121,9 +91,7 @@ SCRIPT_DIR="$(abs_dirname "$0")"
 
 # ---- install ----
 info "Install git config ..."
-XDG_CONFIG_GITHOME="$XDG_CONFIG_HOME/git"
-XDG_CONFIG_GIT="$XDG_CONFIG_GITHOME/config"
-mkdir -p "$XDG_CONFIG_GITHOME"
-ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_GIT"
+XDG_CONFIG_GIT_CONFIG="$XDG_CONFIG_GIT/config"
+ln -sfv "$SCRIPT_DIR/linux.conf" "$XDG_CONFIG_GIT_CONFIG"
 
-info "DONE!!"
+info "DONE"
