@@ -36,6 +36,10 @@ _GIT_COMPLETION_CANDIDATES=(
   ## macOS
 )
 
+_GIT_DIFF_HIGHLIGHTS=(
+  "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"
+)
+
 ################################################################################
 # Common
 ################################################################################
