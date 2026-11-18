@@ -84,3 +84,40 @@ InstallGitHelper()
   info "download $(basename "$dest")"
   curl -fsSL "$url" -o "$dest"
 }
+
+################################################################################
+# diff-highlight
+################################################################################
+
+InstallDiffHighlight()
+{
+  local dest="$1"
+  local url="$2"
+
+  shift 2
+
+  local src
+
+  for src in "$@"; do
+    [[ -r "$src" ]] || continue
+
+    info "copy $src -> $dest"
+    cp -f "$src" "$dest"
+
+    return 0
+  done
+
+  # make
+  for exe in "$@"; do
+    parent_dir="${exe%/*}"
+    makefile_path="${parent_dir}/Makefile"
+
+    if [[ -f "$makefile_path" ]]; then
+      build_dir="/tmp/${parent_dir##*/}"
+      cp -rf "$parent_dir" "$build_dir"
+      make -C "$build_dir" || continue
+      cp -f "$build_dir/diff-highlight" "$dest"
+      return 0
+    fi
+  done
+}

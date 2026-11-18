@@ -74,13 +74,14 @@ InstallGitHelper \
 info "install diff-highlight"
 
 destination="$XDG_CONFIG_GIT/diff-highlight"
-InstallGitHelper \
-  "$destination" \
-  "$DIFF_HIGHLIGHT_URL" \
-  "${DIFF_HIGHLIGHT_CANDIDATES[@]}"
+if command -v diff-highlight > /dev/null 2>&1; then
+  InstallGitHelper \
+    "$destination" \
+    "$DIFF_HIGHLIGHT_URL" \
+    "${DIFF_HIGHLIGHT_CANDIDATES[@]}"
 
-chmod +x "$destination"
-
+  chmod +x "$destination"
+fi
 ################################################################################
 # Git config setup
 ################################################################################
