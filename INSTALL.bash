@@ -75,7 +75,7 @@ info "install diff-highlight"
 
 destination="$XDG_CONFIG_GIT/diff-highlight"
 if command -v diff-highlight > /dev/null 2>&1; then
-  InstallGitHelper \
+  InstallDiffHighlight \
     "$destination" \
     "$DIFF_HIGHLIGHT_URL" \
     "${DIFF_HIGHLIGHT_CANDIDATES[@]}"
